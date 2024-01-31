@@ -3,6 +3,8 @@ project(HelloWorld VERSION 1.0.0)
 cmake_policy(SET CMP0076 NEW)
 
 
+
+
 find_package(Git QUIET)
 if(EXISTS "${PROJECT_SOURCE_DIR}/.git")
 	option(CTEST_GIT_INIT_SUBMODULES "Initialize git submodules during build" ON)
@@ -42,11 +44,13 @@ endif(OPENGL_FOUND)
 
 add_subdirectory(dep/glfw EXCLUDE_FROM_ALL)
 
-add_executable(HelloWorld src/main.cpp
+add_executable(HelloWorld
+	src/main.cpp
 	src/config.h
 	src/glad.c
+	src/triangle_mesh.cpp
+	src/triangle_mesh.h
 )
-
 
 target_include_directories(HelloWorld PRIVATE dep/include)
 
@@ -58,6 +62,7 @@ target_include_directories(HelloWorld PRIVATE dep/include)
 target_link_libraries(HelloWorld
 	glfw
 	OpenGL::GL
+
 )
 
 # add_executable(HelloWorld src/main.cpp src/config.h)
