@@ -2,6 +2,7 @@
 #include "triangle_mesh.h"
 // #include "OpenimageIO/imageio.h"
 // #include <Open
+#include "OpenEXR/ImfImageIO.h"
 
 GLuint make_module(const std::string& filepath, GLenum type)
 {
@@ -73,8 +74,43 @@ GLuint makeProgram(const std::string& vertexPath, const std::string& fragmentPat
 }
 
 
+#include "OpenEXR/ImfArray.h"
+#include "OpenEXR/ImfRgbaFile.h"
+
+
+int write_exr()
+{
+	int width =  100;
+	int height = 100;
+		
+	Imf::Array2D<Imf::Rgba> pixels(width, height);
+	for (int y=0; y<height; y++)
+		for (int x=0; x<width; x++)
+		{
+			// pixels[y][x] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
+			pixels[y][x] = Imf::Rgba(1, 0, 1);
+		}
+		
+	try {
+		Imf::RgbaOutputFile file ("/home/imisumi/Desktop/OpenGL/hello.exr", width, height, Imf::WRITE_RGBA);
+		file.setFrameBuffer (&pixels[0][0], 1, width);
+		file.writePixels (height);
+	} catch (const std::exception &e) {
+		std::cerr << "error writing image file hello.exr:" << e.what() << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
+
 int main()
 {
+	int ret = write_exr();
+	if (ret != 0)
+	{
+		std::cout << "Failed to write exr" << std::endl;
+		return ret;
+	}
 	if (!glfwInit())
 	{
 		std::cout << "Failed to initialize GLFW" << std::endl;
@@ -107,10 +143,34 @@ int main()
 
 	glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
 
-	GLuint shader = makeProgram("../../src/shaders/vertex.vert", "../../src/shaders/frag.frag");
+	// const char* vert = "../../src/shaders/vertex.vert";
+	// const char* frag = "../../src/shaders/frag.frag";
+	const char* vert = "../src/shaders/vertex.vert";
+	const char* frag = "../src/shaders/frag.frag";
+	GLuint shader = makeProgram(vert, frag);
 	TriangleMesh* triangle = new TriangleMesh();
+	glfwSwapInterval(0);
+	double prevTime = 0.0;
+	double currTime = 0.0;
+	double deltaTime = 0.0;
+	uint32_t frameCount = 0;
 	while (!glfwWindowShouldClose(window))
 	{
+		currTime = glfwGetTime();
+		deltaTime = currTime - prevTime;
+		frameCount++;
+		if (deltaTime >= 1.0 / 15.0)
+		{
+			std::string FPS = std::to_string((1.0f / deltaTime) * frameCount);
+			std::string ms = std::to_string((deltaTime / frameCount) * 1000.0f);
+			std::string title = "FPS: " + FPS.substr(0, FPS.find('.')) + " ms: " + ms;
+			glfwSetWindowTitle(window, title.c_str());
+			frameCount = 0;
+			prevTime = currTime;
+		}
+
+
+
 		glfwPollEvents();
 
 		glUseProgram(shader);

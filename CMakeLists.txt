@@ -33,6 +33,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # looking for opengl
+set(OpenGL_GL_PREFERENCE "GLVND" CACHE STRING "OpenGL preference")
 message(STATUS "Looking for OpenGL")
 find_package(OpenGL REQUIRED)
 if (OPENGL_FOUND)
@@ -40,6 +41,15 @@ if (OPENGL_FOUND)
   else()
   message(FATAL_ERROR "OpenGL not found")
 endif(OPENGL_FOUND)
+
+
+list(APPEND CMAKE_PREFIX_PATH "/home/imisumi/sgoinfre/openexr/build/install/lib/cmake/")
+find_package(OpenEXR REQUIRED)
+if(OpenEXR_FOUND)
+	message(STATUS "OpenEXR found")
+else()
+	message(FATAL_ERROR "OpenEXR not found")
+endif()
 
 
 add_subdirectory(dep/glfw EXCLUDE_FROM_ALL)
@@ -52,24 +62,17 @@ add_executable(HelloWorld
 	src/triangle_mesh.h
 )
 
-target_include_directories(HelloWorld PRIVATE dep/include)
+target_include_directories(HelloWorld PRIVATE 
+	dep/include
+	/home/imisumi/sgoinfre/openexr/build/install/include
+	/home/imisumi/sgoinfre/openexr/build/install/include/Imath
+	/home/imisumi/sgoinfre/openexr/build/install/include/OpenEXR
+)
 
-# target_link_libraries(HelloWorld
-# 	glfw
-# 	OpenGL::GL
-# )
 
 target_link_libraries(HelloWorld
 	glfw
 	OpenGL::GL
-
+	# OpenEXR::IlmImf
+	OpenEXR::OpenEXR
 )
-
-# add_executable(HelloWorld src/main.cpp src/config.h)
-
-# target_include_directories(HelloWorld PRIVATE dep/include)
-
-# # link_directories(${CMAKE_SOURCE_DIR}/dep/lib)
-
-# # target_link_libraries(HelloWorld PRIVATE glfw3)
-# target_link_libraries(HelloWorld PRIVATE ${CMAKE_SOURCE_DIR}/dep/lib/glfw3.lib)
