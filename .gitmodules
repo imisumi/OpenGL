@@ -1,3 +1,6 @@
 [submodule "glfw"]
 	path = dep/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "openexr"]
+	path = dep/openexr
+	url = https://github.com/AcademySoftwareFoundation/openexr.git
