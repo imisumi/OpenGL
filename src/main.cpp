@@ -92,7 +92,7 @@ int write_exr()
 		}
 		
 	try {
-		Imf::RgbaOutputFile file ("/home/imisumi/Desktop/OpenGL/hello.exr", width, height, Imf::WRITE_RGBA);
+		Imf::RgbaOutputFile file ("C:/Users/ichir/Desktop/testing-opengl/hello.exr", width, height, Imf::WRITE_RGBA);
 		file.setFrameBuffer (&pixels[0][0], 1, width);
 		file.writePixels (height);
 	} catch (const std::exception &e) {
@@ -105,6 +105,10 @@ int write_exr()
 
 int main()
 {
+	std::filesystem::path currentPath = std::filesystem::current_path();
+	std::cout << "Current working directory: " << currentPath << std::endl;
+	// std::cout << "hello world\n";
+	// return 0;
 	int ret = write_exr();
 	if (ret != 0)
 	{
@@ -143,10 +147,11 @@ int main()
 
 	glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
 
-	// const char* vert = "../../src/shaders/vertex.vert";
-	// const char* frag = "../../src/shaders/frag.frag";
-	const char* vert = "../src/shaders/vertex.vert";
-	const char* frag = "../src/shaders/frag.frag";
+	const char* vert = "../../src/shaders/vertex.vert";
+	const char* frag = "../../src/shaders/frag.frag";
+
+	// const char* vert = "../src/shaders/vertex.vert";
+	// const char* frag = "../src/shaders/frag.frag";
 	GLuint shader = makeProgram(vert, frag);
 	TriangleMesh* triangle = new TriangleMesh();
 	glfwSwapInterval(0);

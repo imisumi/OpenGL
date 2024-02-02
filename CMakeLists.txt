@@ -21,6 +21,18 @@ endif()
 
 
 set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
+# # target_compile_definitions(HelloWorld PRIVATE -D_ITERATOR_DEBUG_LEVEL=0)
+
+# if(WIN32)
+# 	message(STATUS "Windows detected")
+# 	add_definitions(-DUNICODE -D_UNICODE)
+#     # set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+#     set(CMAKE_CXX_FLAGS_RELEASE "/MT") # for static libs
+#     set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+# endif(WIN32)
+
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -37,18 +49,86 @@ set(OpenGL_GL_PREFERENCE "GLVND" CACHE STRING "OpenGL preference")
 message(STATUS "Looking for OpenGL")
 find_package(OpenGL REQUIRED)
 if (OPENGL_FOUND)
-  message(STATUS "OpenGL found")
-  else()
-  message(FATAL_ERROR "OpenGL not found")
+	message(STATUS "OpenGL found")
+else()
+	message(FATAL_ERROR "OpenGL not found")
 endif(OPENGL_FOUND)
 
 
-list(APPEND CMAKE_PREFIX_PATH "/home/imisumi/sgoinfre/openexr/build/install/lib/cmake/")
-find_package(OpenEXR REQUIRED)
+# find_package(OpenEXR QUIET)
+# if(NOT OpenEXR_FOUND)
+# 	include(ExternalProject)
+
+# 	ExternalProject_Add(
+# 	openexr
+# 	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openexr
+# 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dep/openexr
+# 	CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release
+# 				-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/dep/openexr/build/install-dir
+# 				-DBUILD_TESTING=OFF
+# 				-DBUILD_SHARED_LIBS=OFF
+# 				-DOPENEXR_BUILD_TOOLS=OFF
+# 				-DOPENEXR_INSTALL_TOOLS=OFF
+# 				-DOPENEXR_INSTALL_EXAMPLES=OFF
+# 	)
+# 	list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/dep/openexr/install-dir/lib/cmake/)
+# 	# Now try finding OpenEXR again
+# 	find_package(OpenEXR REQUIRED)
+# 	if(OpenEXR_FOUND)
+# 		message(STATUS "OpenEXR found")
+# 	else()
+# 		message(FATAL_ERROR "OpenEXR not found")
+# 	endif()
+	
+# 	# Optionally, if you want to depend on the openexr target
+# 	# add_dependencies(YourTarget openexr)
+# else()
+# 	message(STATUS "OpenEXR found")
+# endif()
+
+# find_package(OpenEXR QUIET)
+# if(NOT OpenEXR_FOUND)
+#   message(STATUS "OpenEXR not found, building from source")
+# else()
+#   message(STATUS "OpenEXR found")
+# endif()
+
+
+
+
+
+# list(APPEND CMAKE_PREFIX_PATH "/home/imisumi/sgoinfre/openexr/build/install/lib/cmake/")
+# list(APPEND CMAKE_PREFIX_PATH "dep/openexr/build/install-dir/lib/cmake/")
+# find_package(OpenEXR REQUIRED)
+# if(OpenEXR_FOUND)
+# 	message(STATUS "OpenEXR found")
+# else()
+# 	message(FATAL_ERROR "OpenEXR not found")
+# endif()
+
+
+find_package(OpenEXR QUIET)
 if(OpenEXR_FOUND)
 	message(STATUS "OpenEXR found")
 else()
-	message(FATAL_ERROR "OpenEXR not found")
+	message(STATUS "OpenEXR not found, building from source")
+
+	# Specify the path to the install.bat script
+	set(INSTALL_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/install.bat")
+
+	# Run the install.bat script using execute_process
+	execute_process(COMMAND cmd /c "${INSTALL_SCRIPT}"
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					RESULT_VARIABLE CMD_RESULT)
+
+	# Add the install-dir to the CMAKE_PREFIX_PATH
+	list(APPEND CMAKE_PREFIX_PATH "dep/openexr/build/install-dir/lib/cmake/")
+	find_package(OpenEXR REQUIRED)
+	if(CMD_RESULT EQUAL 0)
+		message(STATUS "Installation successful after building from source")
+	else()
+		message(FATAL_ERROR "Error running installation script")
+	endif()
 endif()
 
 
@@ -64,9 +144,12 @@ add_executable(HelloWorld
 
 target_include_directories(HelloWorld PRIVATE 
 	dep/include
-	/home/imisumi/sgoinfre/openexr/build/install/include
-	/home/imisumi/sgoinfre/openexr/build/install/include/Imath
-	/home/imisumi/sgoinfre/openexr/build/install/include/OpenEXR
+	dep/openexr/build/install/include
+	dep/openexr/build/install/include/Imath
+	dep/openexr/build/install/include/OpenEXR
+	# /home/imisumi/sgoinfre/openexr/build/install/include
+	# /home/imisumi/sgoinfre/openexr/build/install/include/Imath
+	# /home/imisumi/sgoinfre/openexr/build/install/include/OpenEXR
 )
 
 
